@@ -54,7 +54,7 @@ async function buildProject() {
 
         // Build backend
         console.log('⚙️ Construyendo backend...');
-        await runCommand('npm', ['install'], backendDir);
+        await runCommand('npm', ['install', '--legacy-peer-deps'], backendDir);
         await runCommand('npm', ['run', 'build'], backendDir);
         console.log('✅ Backend construido exitosamente');
 

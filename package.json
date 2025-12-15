@@ -7,11 +7,12 @@
         "start": "node server.js",
         "build": "node build.js",
         "build:frontend": "cd frontend && npm install && npm run build",
-        "build:backend": "cd backend && npm install && npm run build",
+        "build:backend": "cd backend && npm install --legacy-peer-deps && npm run build",
         "dev": "cd backend && npm run start:dev",
         "dev:frontend": "cd frontend && npm run dev",
         "dev:backend": "cd backend && npm run start:dev",
-        "start:backend": "cd backend && npm run start:prod"
+        "start:backend": "cd backend && npm run start:prod",
+        "postinstall": "npm run build"
     },
     "engines": {
         "node": ">=18.0.0",

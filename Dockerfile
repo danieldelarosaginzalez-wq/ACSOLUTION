@@ -1,56 +1,33 @@
-# Multi-stage build para optimizar el tamaño
-FROM node:18-alpine AS builder
+# Usar Node.js 18 LTS
+FROM node:18-alpine
 
 # Establecer directorio de trabajo
 WORKDIR /app
 
-# Copiar archivos de configuración
-COPY package*.json ./
-COPY frontend/package*.json ./frontend/
-COPY backend/package*.json ./backend/
+# Instalar dependencias del sistema
+RUN apk add --no-cache python3 make g++
 
-# Instalar dependencias del frontend
-WORKDIR /app/frontend
-RUN npm ci --only=production
+# Copiar todo el código fuente
+COPY . .
 
-# Copiar código del frontend y construir
-COPY frontend/ ./
+# Instalar dependencias principales
+RUN npm install --production
+
+# Construir el proyecto
 RUN npm run build
 
-# Instalar dependencias del backend
-WORKDIR /app/backend
-RUN npm ci --only=production
-
-# Copiar código del backend y construir
-COPY backend/ ./
-RUN npm run build
-
-# Etapa de producción
-FROM node:18-alpine AS production
-
-WORKDIR /app
-
-# Copiar package.json principal
-COPY package*.json ./
-
-# Instalar solo dependencias de producción
-RUN npm ci --only=production
-
-# Copiar servidor principal
-COPY server.js ./
-
-# Copiar builds del frontend y backend
-COPY --from=builder /app/frontend/dist ./frontend/dist
-COPY --from=builder /app/backend/dist ./backend/dist
-COPY --from=builder /app/backend/node_modules ./backend/node_modules
+# Limpiar archivos innecesarios
+RUN rm -rf frontend/src backend/src frontend/node_modules/.cache
 
 # Crear usuario no-root para seguridad
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S acsolution -u 1001 -G nodejs
 
 # Cambiar permisos
-RUN chown -R nextjs:nodejs /app
-USER nextjs
+RUN chown -R acsolution:nodejs /app
+
+# Cambiar a usuario no-root
+USER acsolution
 
 # Exponer puerto
 EXPOSE 3000
