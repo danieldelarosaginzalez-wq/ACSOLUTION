@@ -1,0 +1,12 @@
+{
+    "name": "ises-isea-database",
+    "version": "1.0.0",
+    "description": "Scripts de base de datos para ISES-ISEA",
+    "scripts": {
+        "create-users": "node create-users.js"
+    },
+    "dependencies": {
+        "mongodb": "^6.3.0",
+        "bcrypt": "^5.1.1"
+    }
+}

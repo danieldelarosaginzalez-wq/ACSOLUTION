@@ -1,0 +1,14 @@
+{
+    "name": "serviceops-pro",
+    "version": "1.0.0",
+    "description": "ServiceOps Pro - Sistema de Gestión de Órdenes de Trabajo",
+    "scripts": {
+        "dev": "cd backend && npm run start:dev",
+        "dev:frontend": "cd frontend && npm run dev",
+        "dev:backend": "cd backend && npm run start:dev",
+        "build:backend": "cd backend && npm run build",
+        "build:frontend": "cd frontend && npm run build",
+        "start:backend": "cd backend && npm run start:prod"
+    },
+    "private": true
+}

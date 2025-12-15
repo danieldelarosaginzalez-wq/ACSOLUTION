@@ -1,0 +1,97 @@
+{
+    "collection": "polizas",
+    "validator": {
+        "$jsonSchema": {
+            "bsonType": "object",
+            "required": [
+                "poliza_number",
+                "estado"
+            ],
+            "properties": {
+                "poliza_number": {
+                    "bsonType": "string",
+                    "pattern": "^[0-9]{6}$",
+                    "description": "Número de póliza de 6 dígitos (OBLIGATORIO)"
+                },
+                "descripcion": {
+                    "bsonType": "string",
+                    "description": "Descripción de la póliza"
+                },
+                "metadata": {
+                    "bsonType": "object",
+                    "description": "Información adicional de la póliza"
+                },
+                "autorizaciones": {
+                    "bsonType": "array",
+                    "items": {
+                        "bsonType": "object",
+                        "properties": {
+                            "autoridad": {
+                                "bsonType": "string"
+                            },
+                            "fecha": {
+                                "bsonType": "date"
+                            },
+                            "document_id": {
+                                "bsonType": "objectId"
+                            }
+                        }
+                    }
+                },
+                "created_at": {
+                    "bsonType": "date"
+                },
+                "estado": {
+                    "enum": [
+                        "activo",
+                        "anulada"
+                    ],
+                    "description": "Estado de la póliza"
+                }
+            }
+        }
+    },
+    "indexes": [
+        {
+            "key": {
+                "poliza_number": 1
+            },
+            "unique": true,
+            "name": "poliza_number_unique"
+        },
+        {
+            "key": {
+                "estado": 1
+            },
+            "name": "estado_index"
+        }
+    ],
+    "sample_data": [
+        {
+            "poliza_number": "600637",
+            "descripcion": "Póliza de mantenimiento preventivo",
+            "metadata": {
+                "max_cost": 50000,
+                "entidades": [
+                    "CFE",
+                    "PEMEX"
+                ]
+            },
+            "autorizaciones": [],
+            "created_at": {
+                "$date": "2024-01-01T00:00:00Z"
+            },
+            "estado": "activo"
+        },
+        {
+            "poliza_number": "600638",
+            "descripcion": "Póliza de instalación eléctrica",
+            "metadata": {},
+            "autorizaciones": [],
+            "created_at": {
+                "$date": "2024-01-15T00:00:00Z"
+            },
+            "estado": "activo"
+        }
+    ]
+}

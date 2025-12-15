@@ -1,0 +1,107 @@
+{
+    "collection": "movimientos_inventario",
+    "validator": {
+        "$jsonSchema": {
+            "bsonType": "object",
+            "required": [
+                "tecnico_id",
+                "material_id",
+                "tipo",
+                "cantidad",
+                "fecha"
+            ],
+            "properties": {
+                "tecnico_id": {
+                    "bsonType": "objectId",
+                    "description": "ID del técnico"
+                },
+                "material_id": {
+                    "bsonType": "objectId",
+                    "description": "ID del material"
+                },
+                "tipo": {
+                    "enum": [
+                        "entrada",
+                        "salida",
+                        "apartado",
+                        "ajuste",
+                        "devolucion"
+                    ],
+                    "description": "Tipo de movimiento"
+                },
+                "cantidad": {
+                    "bsonType": "number",
+                    "description": "Cantidad del movimiento (positivo o negativo según tipo)"
+                },
+                "motivo": {
+                    "bsonType": "string",
+                    "description": "Razón del movimiento"
+                },
+                "visible_para_analistas": {
+                    "bsonType": "bool",
+                    "description": "Si false, solo visible para analista_inventario_oculto"
+                },
+                "usuario_responsable": {
+                    "bsonType": "objectId",
+                    "description": "Usuario que realizó el movimiento"
+                },
+                "origen": {
+                    "enum": [
+                        "OT",
+                        "poliza",
+                        "Excel",
+                        "AjusteAutomatico",
+                        "Manual"
+                    ],
+                    "description": "Origen del movimiento"
+                },
+                "referencia_origen_id": {
+                    "bsonType": [
+                        "objectId",
+                        "null"
+                    ],
+                    "description": "ID de la OT o póliza relacionada"
+                },
+                "fecha": {
+                    "bsonType": "date",
+                    "description": "Fecha y hora del movimiento"
+                }
+            }
+        }
+    },
+    "indexes": [
+        {
+            "key": {
+                "tecnico_id": 1,
+                "fecha": -1
+            },
+            "name": "tecnico_fecha_index"
+        },
+        {
+            "key": {
+                "material_id": 1
+            },
+            "name": "material_id_index"
+        },
+        {
+            "key": {
+                "origen": 1,
+                "referencia_origen_id": 1
+            },
+            "name": "origen_referencia_index"
+        },
+        {
+            "key": {
+                "visible_para_analistas": 1
+            },
+            "name": "visible_index"
+        }
+    ],
+    "movement_types": {
+        "entrada": "Incrementa cantidad_actual (abastecimiento)",
+        "salida": "Decrementa cantidad_actual (consumo en OT)",
+        "apartado": "Incrementa cantidad_apartada, decrementa cantidad_disponible",
+        "ajuste": "Corrección manual por analista_inventario_oculto",
+        "devolucion": "Decrementa cantidad_apartada, incrementa cantidad_disponible"
+    }
+}

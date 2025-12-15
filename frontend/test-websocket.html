@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test WebSocket - ServiceOps Pro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .connected {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #22c55e;
+        }
+
+        .disconnected {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+        }
+
+        .message {
+            background: rgba(59, 130, 246, 0.2);
+            border: 2px solid #3b82f6;
+        }
+
+        button {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        #log {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧪 Test WebSocket - ServiceOps Pro</h1>
+
+        <div id="status" class="status disconnected">
+            ❌ Desconectado
+        </div>
+
+        <div>
+            <button onclick="connectWebSocket()">🔌 Conectar</button>
+            <button onclick="disconnectWebSocket()">🔌 Desconectar</button>
+            <button onclick="requestMapData()">🗺️ Solicitar Datos del Mapa</button>
+            <button onclick="clearLog()">🧹 Limpiar Log</button>
+        </div>
+
+        <div id="log"></div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        let socket = null;
+        const statusDiv = document.getElementById('status');
+        const logDiv = document.getElementById('log');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#3b82f6',
+                success: '#22c55e',
+                error: '#ef4444',
+                warning: '#f59e0b'
+            };
+
+            logDiv.innerHTML += `<div style="color: ${colors[type]}; margin: 5px 0;">
+                [${timestamp}] ${message}
+            </div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateStatus(connected) {
+            if (connected) {
+                statusDiv.className = 'status connected';
+                statusDiv.innerHTML = '✅ Conectado al WebSocket';
+            } else {
+                statusDiv.className = 'status disconnected';
+                statusDiv.innerHTML = '❌ Desconectado';
+            }
+        }
+
+        function connectWebSocket() {
+            if (socket && socket.connected) {
+                log('Ya está conectado', 'warning');
+                return;
+            }
+
+            log('🔌 Intentando conectar a ws://localhost:4000/location...', 'info');
+
+            socket = io('http://localhost:4000/location', {
+                transports: ['websocket', 'polling'],
+                reconnection: true,
+                reconnectionDelay: 1000,
+                reconnectionAttempts: 5,
+            });
+
+            socket.on('connect', () => {
+                log('✅ Conectado exitosamente!', 'success');
+                log(`📡 Socket ID: ${socket.id}`, 'info');
+                updateStatus(true);
+            });
+
+            socket.on('disconnect', (reason) => {
+                log(`❌ Desconectado: ${reason}`, 'error');
+                updateStatus(false);
+            });
+
+            socket.on('connect_error', (error) => {
+                log(`❌ Error de conexión: ${error.message}`, 'error');
+                updateStatus(false);
+            });
+
+            socket.on('mapData', (data) => {
+                log('🗺️ Datos del mapa recibidos:', 'success');
+                log(`   📍 Órdenes: ${data.ordenes?.length || 0}`, 'info');
+                log(`   👷 Técnicos: ${data.tecnicos?.length || 0}`, 'info');
+                log(`   🕒 Timestamp: ${data.timestamp}`, 'info');
+            });
+
+            socket.on('technicianLocationUpdated', (data) => {
+                log('📍 Ubicación de técnico actualizada:', 'success');
+                log(`   👷 Técnico ID: ${data.tecnicoId}`, 'info');
+                log(`   📍 Coordenadas: ${data.ubicacion.lat}, ${data.ubicacion.lng}`, 'info');
+            });
+
+            socket.on('mapUpdateRequired', (data) => {
+                log('🔄 Actualización de mapa requerida', 'warning');
+                log(`   🕒 Timestamp: ${data.timestamp}`, 'info');
+            });
+        }
+
+        function disconnectWebSocket() {
+            if (socket) {
+                socket.disconnect();
+                log('🔌 Desconectado manualmente', 'warning');
+                updateStatus(false);
+            }
+        }
+
+        function requestMapData() {
+            if (!socket || !socket.connected) {
+                log('❌ No hay conexión WebSocket', 'error');
+                return;
+            }
+
+            log('🗺️ Solicitando datos del mapa...', 'info');
+            socket.emit('requestMapData', { estado: 'all' });
+        }
+
+        function clearLog() {
+            logDiv.innerHTML = '';
+        }
+
+        // Auto-conectar al cargar la página
+        window.onload = () => {
+            log('🚀 Test WebSocket iniciado', 'info');
+            log('💡 Asegúrate de que el backend esté corriendo en puerto 4000', 'warning');
+        };
+    </script>
+</body>
+
+</html>

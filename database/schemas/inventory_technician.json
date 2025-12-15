@@ -1,0 +1,83 @@
+{
+    "collection": "inventory_technician",
+    "validator": {
+        "$jsonSchema": {
+            "bsonType": "object",
+            "required": [
+                "tecnico_id",
+                "materials"
+            ],
+            "properties": {
+                "tecnico_id": {
+                    "bsonType": "objectId",
+                    "description": "ID del técnico"
+                },
+                "materials": {
+                    "bsonType": "array",
+                    "items": {
+                        "bsonType": "object",
+                        "required": [
+                            "material_id",
+                            "cantidad_actual",
+                            "cantidad_apartada",
+                            "cantidad_disponible"
+                        ],
+                        "properties": {
+                            "material_id": {
+                                "bsonType": "objectId",
+                                "description": "ID del material"
+                            },
+                            "cantidad_actual": {
+                                "bsonType": "number",
+                                "minimum": 0,
+                                "description": "Cantidad física total"
+                            },
+                            "cantidad_apartada": {
+                                "bsonType": "number",
+                                "minimum": 0,
+                                "description": "Cantidad reservada para OTs"
+                            },
+                            "cantidad_disponible": {
+                                "bsonType": "number",
+                                "minimum": 0,
+                                "description": "Cantidad disponible = actual - apartada"
+                            },
+                            "ultimo_movimiento": {
+                                "bsonType": [
+                                    "date",
+                                    "null"
+                                ],
+                                "description": "Fecha del último movimiento"
+                            }
+                        }
+                    }
+                },
+                "updated_at": {
+                    "bsonType": "date",
+                    "description": "Última actualización del inventario"
+                }
+            }
+        }
+    },
+    "indexes": [
+        {
+            "key": {
+                "tecnico_id": 1
+            },
+            "unique": true,
+            "name": "tecnico_id_unique"
+        },
+        {
+            "key": {
+                "materials.material_id": 1
+            },
+            "name": "material_id_index"
+        }
+    ],
+    "business_rules": [
+        "cantidad_disponible SIEMPRE debe ser = cantidad_actual - cantidad_apartada",
+        "No permitir apartado si cantidad_disponible < cantidad_solicitada",
+        "Actualizar updated_at en cada movimiento",
+        "Usar transacciones para modificar inventario + movimientos simultáneamente"
+    ]
+}

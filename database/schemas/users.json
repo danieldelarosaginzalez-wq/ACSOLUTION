@@ -1,0 +1,96 @@
+{
+    "collection": "users",
+    "validator": {
+        "$jsonSchema": {
+            "bsonType": "object",
+            "required": [
+                "nombre",
+                "email",
+                "password_hash",
+                "rol",
+                "estado"
+            ],
+            "properties": {
+                "nombre": {
+                    "bsonType": "string",
+                    "description": "Nombre completo del usuario"
+                },
+                "email": {
+                    "bsonType": "string",
+                    "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+                    "description": "Email único del usuario"
+                },
+                "password_hash": {
+                    "bsonType": "string",
+                    "description": "Hash bcrypt de la contraseña"
+                },
+                "rol": {
+                    "enum": [
+                        "analista",
+                        "tecnico",
+                        "analista_inventario_oculto"
+                    ],
+                    "description": "Rol del usuario en el sistema"
+                },
+                "estado": {
+                    "enum": [
+                        "activo",
+                        "inactivo"
+                    ],
+                    "description": "Estado del usuario"
+                },
+                "created_at": {
+                    "bsonType": "date",
+                    "description": "Fecha de creación"
+                }
+            }
+        }
+    },
+    "indexes": [
+        {
+            "key": {
+                "email": 1
+            },
+            "unique": true,
+            "name": "email_unique"
+        },
+        {
+            "key": {
+                "rol": 1
+            },
+            "name": "rol_index"
+        }
+    ],
+    "sample_data": [
+        {
+            "nombre": "Juan Analista",
+            "email": "analista@ises.com",
+            "password_hash": "$2b$10$...",
+            "rol": "analista",
+            "estado": "activo",
+            "created_at": {
+                "$date": "2024-01-01T00:00:00Z"
+            }
+        },
+        {
+            "nombre": "Pedro Técnico",
+            "email": "tecnico@ises.com",
+            "password_hash": "$2b$10$...",
+            "rol": "tecnico",
+            "estado": "activo",
+            "created_at": {
+                "$date": "2024-01-01T00:00:00Z"
+            }
+        },
+        {
+            "nombre": "Admin Inventario",
+            "email": "admin@ises.com",
+            "password_hash": "$2b$10$...",
+            "rol": "analista_inventario_oculto",
+            "estado": "activo",
+            "created_at": {
+                "$date": "2024-01-01T00:00:00Z"
+            }
+        }
+    ]
+}

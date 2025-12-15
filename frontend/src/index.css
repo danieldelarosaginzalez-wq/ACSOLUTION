@@ -1,0 +1,137 @@
+@import 'leaflet/dist/leaflet.css';
+@import './styles/epic-map.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fix para z-index de popups de Leaflet */
+.leaflet-pane {
+  z-index: 400;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 1000;
+}
+
+.leaflet-popup {
+  z-index: 1100;
+}
+
+/* Estilos personalizados para el mapa */
+.leaflet-container {
+  font-family: inherit;
+  background: #1f2937;
+}
+
+/* Popups mejorados */
+.leaflet-popup-content-wrapper {
+  border-radius: 1rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  border: 2px solid #d946ef;
+  padding: 0;
+  background: #374151;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  min-width: 200px;
+}
+
+.leaflet-popup-tip {
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e5e7eb;
+  border-top: none;
+  border-right: none;
+}
+
+.custom-popup .leaflet-popup-close-button {
+  color: #6b7280;
+  font-size: 24px;
+  padding: 8px 12px;
+  transition: all 0.2s;
+}
+
+.custom-popup .leaflet-popup-close-button:hover {
+  color: #ef4444;
+  background: #fee2e2;
+  border-radius: 0.5rem;
+}
+
+/* Marcadores personalizados */
+.custom-technician-marker,
+.custom-order-marker {
+  background: transparent;
+  border: none;
+}
+
+/* Animaciones para marcadores */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.custom-technician-marker .animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.custom-technician-marker .animate-ping {
+  animation: pulse-ring 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Controles de zoom personalizados */
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-control-zoom a {
+  border-radius: 0.5rem !important;
+  transition: all 0.2s !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: #3b82f6 !important;
+  color: white !important;
+}
+
+/* Tiles con transición suave */
+.leaflet-tile {
+  transition: opacity 0.3s;
+}
+
+/* Scrollbar personalizado para sidebar */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #374151;
+  border-radius: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #d946ef;
+  border-radius: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #c026d3;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

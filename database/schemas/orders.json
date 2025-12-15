@@ -1,0 +1,243 @@
+{
+    "collection": "orders",
+    "validator": {
+        "$jsonSchema": {
+            "bsonType": "object",
+            "required": [
+                "codigo",
+                "poliza_number",
+                "cliente",
+                "direccion",
+                "tipo_trabajo",
+                "estado"
+            ],
+            "properties": {
+                "codigo": {
+                    "bsonType": "string",
+                    "description": "Código único de la OT"
+                },
+                "poliza_number": {
+                    "bsonType": "string",
+                    "pattern": "^[0-9]{6}$",
+                    "description": "Número de póliza de 6 dígitos (OBLIGATORIO)"
+                },
+                "cliente": {
+                    "bsonType": "string",
+                    "description": "Nombre del cliente"
+                },
+                "direccion": {
+                    "bsonType": "string",
+                    "description": "Dirección del trabajo"
+                },
+                "tipo_trabajo": {
+                    "enum": [
+                        "instalacion",
+                        "mantenimiento",
+                        "reparacion",
+                        "inspeccion"
+                    ],
+                    "description": "Tipo de trabajo a realizar"
+                },
+                "analista_id": {
+                    "bsonType": "objectId",
+                    "description": "ID del analista que creó la OT"
+                },
+                "tecnico_id": {
+                    "bsonType": [
+                        "objectId",
+                        "null"
+                    ],
+                    "description": "ID del técnico asignado"
+                },
+                "estado": {
+                    "enum": [
+                        "creada",
+                        "asignada",
+                        "en_proceso",
+                        "finalizada",
+                        "cerrada"
+                    ],
+                    "description": "Estado actual de la OT"
+                },
+                "materiales_sugeridos": {
+                    "bsonType": "array",
+                    "items": {
+                        "bsonType": "object",
+                        "required": [
+                            "material_id",
+                            "cantidad"
+                        ],
+                        "properties": {
+                            "material_id": {
+                                "bsonType": "objectId"
+                            },
+                            "cantidad": {
+                                "bsonType": "number"
+                            },
+                            "unidad": {
+                                "bsonType": "string"
+                            }
+                        }
+                    }
+                },
+                "materiales_apartados": {
+                    "bsonType": "array",
+                    "items": {
+                        "bsonType": "object",
+                        "properties": {
+                            "material_id": {
+                                "bsonType": "objectId"
+                            },
+                            "cantidad": {
+                                "bsonType": "number"
+                            },
+                            "tecnico_id": {
+                                "bsonType": "objectId"
+                            },
+                            "reservation_id": {
+                                "bsonType": "objectId"
+                            }
+                        }
+                    }
+                },
+                "materiales_utilizados": {
+                    "bsonType": "array",
+                    "items": {
+                        "bsonType": "object",
+                        "properties": {
+                            "material_id": {
+                                "bsonType": "objectId"
+                            },
+                            "cantidad": {
+                                "bsonType": "number"
+                            },
+                            "unidad": {
+                                "bsonType": "string"
+                            },
+                            "registrado_por": {
+                                "bsonType": "objectId"
+                            },
+                            "fecha": {
+                                "bsonType": "date"
+                            },
+                            "poliza_number": {
+                                "bsonType": "string"
+                            }
+                        }
+                    }
+                },
+                "evidencias": {
+                    "bsonType": "object",
+                    "properties": {
+                        "foto_inicial": {
+                            "bsonType": [
+                                "object",
+                                "null"
+                            ],
+                            "properties": {
+                                "file_id": {
+                                    "bsonType": "objectId"
+                                },
+                                "meta": {
+                                    "bsonType": "object"
+                                }
+                            }
+                        },
+                        "foto_durante": {
+                            "bsonType": [
+                                "object",
+                                "null"
+                            ]
+                        },
+                        "foto_materiales": {
+                            "bsonType": [
+                                "object",
+                                "null"
+                            ]
+                        },
+                        "foto_final": {
+                            "bsonType": [
+                                "object",
+                                "null"
+                            ]
+                        },
+                        "otros": {
+                            "bsonType": "array",
+                            "items": {
+                                "bsonType": "objectId"
+                            }
+                        }
+                    }
+                },
+                "ia_prediction_id": {
+                    "bsonType": [
+                        "objectId",
+                        "null"
+                    ]
+                },
+                "fecha_creacion": {
+                    "bsonType": "date"
+                },
+                "fecha_cierre": {
+                    "bsonType": [
+                        "date",
+                        "null"
+                    ]
+                },
+                "audit_trail": {
+                    "bsonType": "array",
+                    "items": {
+                        "bsonType": "object",
+                        "properties": {
+                            "actor": {
+                                "bsonType": "objectId"
+                            },
+                            "action": {
+                                "bsonType": "string"
+                            },
+                            "detail": {
+                                "bsonType": "string"
+                            },
+                            "timestamp": {
+                                "bsonType": "date"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "indexes": [
+        {
+            "key": {
+                "codigo": 1
+            },
+            "unique": true,
+            "name": "codigo_unique"
+        },
+        {
+            "key": {
+                "poliza_number": 1
+            },
+            "name": "poliza_number_index"
+        },
+        {
+            "key": {
+                "tecnico_id": 1
+            },
+            "name": "tecnico_id_index"
+        },
+        {
+            "key": {
+                "estado": 1
+            },
+            "name": "estado_index"
+        },
+        {
+            "key": {
+                "fecha_creacion": -1
+            },
+            "name": "fecha_creacion_desc"
+        }
+    ]
+}

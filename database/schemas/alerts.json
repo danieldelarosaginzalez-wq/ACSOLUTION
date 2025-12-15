@@ -1,0 +1,111 @@
+{
+    "collection": "alerts",
+    "validator": {
+        "$jsonSchema": {
+            "bsonType": "object",
+            "required": [
+                "tipo",
+                "descripcion",
+                "visible_para_analistas",
+                "created_at",
+                "resolved"
+            ],
+            "properties": {
+                "tipo": {
+                    "enum": [
+                        "stock_critico",
+                        "consumo_sospechoso",
+                        "foto_manipulada",
+                        "poliza_invalid",
+                        "over_consumption"
+                    ],
+                    "description": "Tipo de alerta"
+                },
+                "descripcion": {
+                    "bsonType": "string",
+                    "description": "Descripción detallada de la alerta"
+                },
+                "order_id": {
+                    "bsonType": [
+                        "objectId",
+                        "null"
+                    ],
+                    "description": "ID de la OT relacionada"
+                },
+                "tecnico_id": {
+                    "bsonType": [
+                        "objectId",
+                        "null"
+                    ],
+                    "description": "ID del técnico relacionado"
+                },
+                "visible_para_analistas": {
+                    "bsonType": "bool",
+                    "description": "Si false, solo visible para analista_inventario_oculto"
+                },
+                "created_at": {
+                    "bsonType": "date",
+                    "description": "Fecha de creación de la alerta"
+                },
+                "resolved": {
+                    "bsonType": "bool",
+                    "description": "Si la alerta fue resuelta"
+                },
+                "resolved_at": {
+                    "bsonType": [
+                        "date",
+                        "null"
+                    ],
+                    "description": "Fecha de resolución"
+                },
+                "resolved_by": {
+                    "bsonType": [
+                        "objectId",
+                        "null"
+                    ],
+                    "description": "Usuario que resolvió la alerta"
+                }
+            }
+        }
+    },
+    "indexes": [
+        {
+            "key": {
+                "tipo": 1,
+                "resolved": 1
+            },
+            "name": "tipo_resolved_index"
+        },
+        {
+            "key": {
+                "order_id": 1
+            },
+            "name": "order_id_index"
+        },
+        {
+            "key": {
+                "tecnico_id": 1
+            },
+            "name": "tecnico_id_index"
+        },
+        {
+            "key": {
+                "visible_para_analistas": 1
+            },
+            "name": "visible_index"
+        },
+        {
+            "key": {
+                "created_at": -1
+            },
+            "name": "created_at_desc"
+        }
+    ],
+    "alert_types": {
+        "stock_critico": "Material por debajo del stock mínimo",
+        "consumo_sospechoso": "Consumo excesivo o patrón anormal",
+        "foto_manipulada": "EXIF no coincide con ubicación de OT",
+        "poliza_invalid": "Póliza inválida o anulada",
+        "over_consumption": "Consumo real > apartado"
+    }
+}

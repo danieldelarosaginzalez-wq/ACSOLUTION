@@ -1,0 +1,100 @@
+{
+    "collection": "ai_predictions",
+    "validator": {
+        "$jsonSchema": {
+            "bsonType": "object",
+            "required": [
+                "order_id",
+                "decision",
+                "confidence",
+                "timestamp"
+            ],
+            "properties": {
+                "order_id": {
+                    "bsonType": "objectId",
+                    "description": "ID de la OT analizada"
+                },
+                "input_snapshot": {
+                    "bsonType": "object",
+                    "description": "Snapshot de los datos de entrada al momento de la predicción"
+                },
+                "features": {
+                    "bsonType": "object",
+                    "description": "Features extraídas para el modelo"
+                },
+                "decision": {
+                    "enum": [
+                        "imposible",
+                        "permitido",
+                        "requiere_verificacion"
+                    ],
+                    "description": "Decisión del modelo de IA"
+                },
+                "confidence": {
+                    "bsonType": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Nivel de confianza de la predicción (0-1)"
+                },
+                "model_version": {
+                    "bsonType": [
+                        "string",
+                        "null"
+                    ],
+                    "description": "Versión del modelo utilizado"
+                },
+                "reasons": {
+                    "bsonType": "array",
+                    "items": {
+                        "bsonType": "string"
+                    },
+                    "description": "Razones de la decisión"
+                },
+                "requested_by": {
+                    "bsonType": "objectId",
+                    "description": "Usuario que solicitó la predicción"
+                },
+                "timestamp": {
+                    "bsonType": "date",
+                    "description": "Fecha y hora de la predicción"
+                },
+                "label_after": {
+                    "enum": [
+                        "permitido",
+                        "imposible",
+                        "falso_positivo",
+                        null
+                    ],
+                    "description": "Etiqueta real después de verificación (para entrenamiento)"
+                }
+            }
+        }
+    },
+    "indexes": [
+        {
+            "key": {
+                "order_id": 1
+            },
+            "name": "order_id_index"
+        },
+        {
+            "key": {
+                "decision": 1
+            },
+            "name": "decision_index"
+        },
+        {
+            "key": {
+                "timestamp": -1
+            },
+            "name": "timestamp_desc"
+        },
+        {
+            "key": {
+                "label_after": 1
+            },
+            "name": "label_after_index"
+        }
+    ],
+    "usage": "Este módulo permite que la IA prediga si una OT puede proceder basándose en patrones históricos, disponibilidad de materiales, y otros factores"
+}
