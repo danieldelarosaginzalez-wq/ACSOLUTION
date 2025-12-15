@@ -5,14 +5,13 @@
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
-        "build": "npm run build:frontend && npm run build:backend",
+        "build": "node build.js",
         "build:frontend": "cd frontend && npm install && npm run build",
         "build:backend": "cd backend && npm install && npm run build",
         "dev": "cd backend && npm run start:dev",
         "dev:frontend": "cd frontend && npm run dev",
         "dev:backend": "cd backend && npm run start:dev",
-        "start:backend": "cd backend && npm run start:prod",
-        "postinstall": "npm run build"
+        "start:backend": "cd backend && npm run start:prod"
     },
     "engines": {
         "node": ">=18.0.0",
