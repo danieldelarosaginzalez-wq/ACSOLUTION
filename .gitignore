@@ -99,3 +99,19 @@ typings/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Build outputs
+backend/dist/
+frontend/dist/
+backend/uploads/
+*.tsbuildinfo
+
+# Production
+/build
+/dist
+
+# Railway
+.railway/
+
+# Docker
+.dockerignore
