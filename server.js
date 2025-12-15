@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const { spawn } = require('child_process');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
@@ -14,8 +15,20 @@ app.use(express.urlencoded({ extended: true }));
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, 'frontend/dist')));
 
-// Proxy para API routes al backend
-app.use('/api', createProxyMiddleware({
+// Estado del backend
+let backendReady = false;
+
+// Proxy para API routes al backend (solo si está listo)
+app.use('/api', (req, res, next) => {
+    if (!backendReady) {
+        return res.status(503).json({
+            message: 'Backend service is starting...',
+            status: 'initializing',
+            timestamp: new Date().toISOString()
+        });
+    }
+    next();
+}, createProxyMiddleware({
     target: `http://localhost:${BACKEND_PORT}`,
     changeOrigin: true,
     pathRewrite: {
@@ -23,10 +36,12 @@ app.use('/api', createProxyMiddleware({
     },
     onError: (err, req, res) => {
         console.error('❌ Proxy error:', err.message);
+        backendReady = false; // Marcar backend como no disponible
         res.status(503).json({
             message: 'Backend service unavailable',
             status: 'error',
-            error: err.message
+            error: err.message,
+            timestamp: new Date().toISOString()
         });
     },
     onProxyReq: (proxyReq, req, res) => {
@@ -40,8 +55,27 @@ app.get('/health', (req, res) => {
         status: 'ok',
         timestamp: new Date().toISOString(),
         service: 'ACSOLUTION',
-        version: '1.0.0'
+        version: '1.0.0',
+        backend: backendReady ? 'ready' : 'starting',
+        uptime: process.uptime()
     });
+});
+
+// Root endpoint para healthcheck básico
+app.get('/', (req, res) => {
+    // Si existe el archivo index.html del frontend, servirlo
+    const indexPath = path.join(__dirname, 'frontend/dist/index.html');
+    if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+    } else {
+        // Si no existe, mostrar página de estado
+        res.json({
+            message: 'ACSOLUTION is running',
+            status: 'ok',
+            timestamp: new Date().toISOString(),
+            backend: backendReady ? 'ready' : 'starting'
+        });
+    }
 });
 
 // Servir la aplicación React para todas las rutas no API
@@ -54,6 +88,13 @@ let backendProcess;
 
 function startBackend() {
     console.log('🚀 Iniciando backend en puerto', BACKEND_PORT);
+
+    // Verificar si el backend está construido
+    const backendDistPath = path.join(__dirname, 'backend/dist');
+    if (!fs.existsSync(backendDistPath)) {
+        console.log('⚠️ Backend no construido, saltando inicio del backend');
+        return;
+    }
 
     // Configurar variables de entorno para el backend
     const backendEnv = {
@@ -68,19 +109,37 @@ function startBackend() {
     backendProcess = spawn('npm', ['run', 'start:prod'], {
         cwd: path.join(__dirname, 'backend'),
         env: backendEnv,
-        stdio: ['inherit', 'inherit', 'inherit'],
+        stdio: ['pipe', 'pipe', 'pipe'],
         shell: true
+    });
+
+    backendProcess.stdout.on('data', (data) => {
+        const output = data.toString();
+        console.log(`[Backend] ${output}`);
+
+        // Detectar cuando el backend está listo
+        if (output.includes('listening on port') || output.includes('Application is running')) {
+            backendReady = true;
+            console.log('✅ Backend está listo');
+        }
+    });
+
+    backendProcess.stderr.on('data', (data) => {
+        console.error(`[Backend Error] ${data}`);
     });
 
     backendProcess.on('error', (error) => {
         console.error('❌ Error al iniciar backend:', error);
+        backendReady = false;
     });
 
     backendProcess.on('exit', (code) => {
         console.log(`🔄 Backend terminó con código: ${code}`);
+        backendReady = false;
+
         if (code !== 0 && process.env.NODE_ENV === 'production') {
-            console.log('🔄 Reiniciando backend en 5 segundos...');
-            setTimeout(startBackend, 5000);
+            console.log('🔄 Reiniciando backend en 10 segundos...');
+            setTimeout(startBackend, 10000);
         }
     });
 }
@@ -103,11 +162,15 @@ process.on('SIGINT', () => {
 });
 
 // Iniciar servidor
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`🌟 ACSOLUTION servidor iniciado en puerto ${PORT}`);
-    console.log(`📱 Frontend: http://localhost:${PORT}`);
-    console.log(`🔧 API: http://localhost:${PORT}/api`);
+    console.log(`📱 Frontend: http://0.0.0.0:${PORT}`);
+    console.log(`🔧 API: http://0.0.0.0:${PORT}/api`);
+    console.log(`❤️ Health: http://0.0.0.0:${PORT}/health`);
 
     // Iniciar backend después de un breve delay
-    setTimeout(startBackend, 2000);
+    setTimeout(startBackend, 3000);
+}).on('error', (err) => {
+    console.error('❌ Error al iniciar servidor:', err);
+    process.exit(1);
 });
