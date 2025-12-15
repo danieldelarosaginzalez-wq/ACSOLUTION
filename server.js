@@ -1,20 +1,46 @@
 const express = require('express');
 const path = require('path');
 const { spawn } = require('child_process');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const BACKEND_PORT = process.env.BACKEND_PORT || 4000;
+
+// Middleware para parsing JSON
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, 'frontend/dist')));
 
-// API routes - proxy al backend
-app.use('/api', (req, res) => {
-    // En producción, el backend debería estar corriendo en un puerto diferente
-    // Por ahora, redirigimos todas las peticiones API
-    res.status(503).json({
-        message: 'Backend service starting...',
-        status: 'initializing'
+// Proxy para API routes al backend
+app.use('/api', createProxyMiddleware({
+    target: `http://localhost:${BACKEND_PORT}`,
+    changeOrigin: true,
+    pathRewrite: {
+        '^/api': '', // Remover /api del path
+    },
+    onError: (err, req, res) => {
+        console.error('❌ Proxy error:', err.message);
+        res.status(503).json({
+            message: 'Backend service unavailable',
+            status: 'error',
+            error: err.message
+        });
+    },
+    onProxyReq: (proxyReq, req, res) => {
+        console.log(`🔄 Proxy: ${req.method} ${req.url} -> ${proxyReq.path}`);
+    }
+}));
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        service: 'ACSOLUTION',
+        version: '1.0.0'
     });
 });
 
@@ -27,11 +53,22 @@ app.get('*', (req, res) => {
 let backendProcess;
 
 function startBackend() {
-    console.log('🚀 Iniciando backend...');
+    console.log('🚀 Iniciando backend en puerto', BACKEND_PORT);
+
+    // Configurar variables de entorno para el backend
+    const backendEnv = {
+        ...process.env,
+        PORT: BACKEND_PORT,
+        NODE_ENV: process.env.NODE_ENV || 'production',
+        MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/acsolution',
+        JWT_SECRET: process.env.JWT_SECRET || 'default-jwt-secret',
+        CORS_ORIGIN: `http://localhost:${PORT}`
+    };
 
     backendProcess = spawn('npm', ['run', 'start:prod'], {
         cwd: path.join(__dirname, 'backend'),
-        stdio: 'inherit',
+        env: backendEnv,
+        stdio: ['inherit', 'inherit', 'inherit'],
         shell: true
     });
 
@@ -41,7 +78,7 @@ function startBackend() {
 
     backendProcess.on('exit', (code) => {
         console.log(`🔄 Backend terminó con código: ${code}`);
-        if (code !== 0) {
+        if (code !== 0 && process.env.NODE_ENV === 'production') {
             console.log('🔄 Reiniciando backend en 5 segundos...');
             setTimeout(startBackend, 5000);
         }
