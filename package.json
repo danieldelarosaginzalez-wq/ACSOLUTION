@@ -5,9 +5,9 @@
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
-        "build": "node build.js",
-        "build:frontend": "cd frontend && npm install && npm run build",
-        "build:backend": "cd backend && npm install --legacy-peer-deps && npm run build",
+        "build": "npm run build:frontend && npm run build:backend",
+        "build:frontend": "cd frontend && npm run build",
+        "build:backend": "cd backend && npm run build",
         "dev": "cd backend && npm run start:dev",
         "dev:frontend": "cd frontend && npm run dev",
         "dev:backend": "cd backend && npm run start:dev",

@@ -22,8 +22,16 @@ RUN npm install --legacy-peer-deps
 WORKDIR /app
 COPY . .
 
-# Construir el proyecto
+# Construir frontend
+WORKDIR /app/frontend
 RUN npm run build
+
+# Construir backend
+WORKDIR /app/backend
+RUN npm run build
+
+# Volver al directorio principal
+WORKDIR /app
 
 # Etapa de producción
 FROM node:18-alpine AS production
