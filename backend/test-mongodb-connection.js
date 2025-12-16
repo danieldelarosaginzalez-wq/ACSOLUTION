@@ -6,7 +6,7 @@ require('dotenv').config();
 async function testMongoConnection() {
     console.log('🔍 Probando conexión a MongoDB...');
 
-    const mongoUrl = process.env.MONGO_URL || process.env.MONGODB_URI;
+    const mongoUrl = (process.env.MONGO_URL ? `${process.env.MONGO_URL}/acsolution` : null) || process.env.MONGODB_URI;
     console.log('📍 MONGO_URL:', process.env.MONGO_URL ? 'Configurada ✅' : 'No configurada ❌');
     console.log('📍 MONGODB_URI:', process.env.MONGODB_URI ? 'Configurada ✅' : 'No configurada ❌');
 

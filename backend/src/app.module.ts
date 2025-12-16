@@ -24,7 +24,7 @@ import { LocationModule } from './location/location.module';
             isGlobal: true,
         }),
         MongooseModule.forRoot(
-            process.env.MONGO_URL ||
+            (process.env.MONGO_URL ? `${process.env.MONGO_URL}/acsolution` : null) ||
             process.env.MONGODB_URI ||
             'mongodb://localhost:27017/acsolution'
         ),

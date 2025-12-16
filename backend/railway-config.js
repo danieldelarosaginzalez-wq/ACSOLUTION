@@ -23,11 +23,17 @@ console.log('PORT:', process.env.PORT || 'No configurada');
 console.log('JWT_SECRET:', process.env.JWT_SECRET ? '***' : 'No configurada');
 
 console.log('\n🔗 URL de conexión que se usará:');
-const mongoUrl = process.env.MONGO_URL || process.env.MONGODB_URI;
+const mongoUrl = (process.env.MONGO_URL ? `${process.env.MONGO_URL}/acsolution` : null) || process.env.MONGODB_URI;
 if (mongoUrl) {
     // Ocultar credenciales en el log
     const safeUrl = mongoUrl.replace(/\/\/[^:]+:[^@]+@/, '//***:***@');
-    console.log('URL:', safeUrl);
+    console.log('URL Final:', safeUrl);
+
+    if (process.env.MONGO_URL) {
+        console.log('✅ Usando MONGO_URL + /acsolution');
+    } else if (process.env.MONGODB_URI) {
+        console.log('⚠️ Usando MONGODB_URI como fallback');
+    }
 } else {
     console.log('❌ No hay URL de MongoDB disponible');
 }
