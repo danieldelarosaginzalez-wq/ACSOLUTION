@@ -23,11 +23,50 @@ import { LocationModule } from './location/location.module';
         ConfigModule.forRoot({
             isGlobal: true,
         }),
-        MongooseModule.forRoot(
-            (process.env.MONGO_URL ? `${process.env.MONGO_URL}/acsolution` : null) ||
-            process.env.MONGODB_URI ||
-            'mongodb://localhost:27017/acsolution'
-        ),
+        MongooseModule.forRootAsync({
+            useFactory: () => {
+                // Función para construir URL de MongoDB
+                function getMongoUrl() {
+                    // Prioridad: MONGO_URL > MONGODB_URI > Variables individuales > Local
+                    if (process.env.MONGO_URL) {
+                        return `${process.env.MONGO_URL}/acsolution`;
+                    }
+
+                    if (process.env.MONGODB_URI) {
+                        return process.env.MONGODB_URI;
+                    }
+
+                    // Construir desde variables individuales (Railway)
+                    const mongoUser = process.env.MONGOUSER || process.env.MONGO_INITDB_ROOT_USERNAME || 'mongo';
+                    const mongoPassword = process.env.MONGOPASSWORD || process.env.MONGO_INITDB_ROOT_PASSWORD;
+                    const mongoHost = process.env.MONGOHOST || process.env.RAILWAY_PRIVATE_DOMAIN;
+                    const mongoPort = process.env.MONGOPORT || '27017';
+
+                    if (mongoPassword && mongoHost) {
+                        return `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}/acsolution`;
+                    }
+
+                    return 'mongodb://localhost:27017/acsolution';
+                }
+
+                const mongoUrl = getMongoUrl();
+
+                // Log en producción
+                if (process.env.NODE_ENV === 'production') {
+                    console.log('🔍 MongoDB Configuration:');
+                    console.log('MONGO_URL:', process.env.MONGO_URL ? '✅' : '❌');
+                    console.log('MONGOUSER:', process.env.MONGOUSER ? '✅' : '❌');
+                    console.log('MONGOHOST:', process.env.MONGOHOST ? '✅' : '❌');
+                    console.log('URL:', mongoUrl.replace(/\/\/[^:]+:[^@]+@/, '//***:***@'));
+                }
+
+                return {
+                    uri: mongoUrl,
+                    retryAttempts: 5,
+                    retryDelay: 3000,
+                };
+            },
+        }),
         AuthModule,
         UsersModule,
         PolizasModule,

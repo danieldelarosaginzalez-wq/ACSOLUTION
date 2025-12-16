@@ -4,26 +4,31 @@
 
 Según tu configuración en Railway, tienes las siguientes variables disponibles:
 
-### Variables Individuales
-- `MONGOHOST`: `mongodb.railway.internal`
+### Variables Individuales (Actualizadas)
+- `MONGOHOST`: `mongodb-8ago.railway.internal`
 - `MONGOUSER`: `mongo`
-- `MONGOPASSWORD`: `JfZyuolAZaYujxmJueFLUeMwzMkJmhpn`
+- `MONGOPASSWORD`: `qAdOhJanqxBedpXUiObHKWkSFoEOCvug`
 - `MONGOPORT`: `27017`
 
-### Variables de Conexión Completas
-- `MONGO_URL`: Cadena de conexión completa interna
-- `MONGO_PUBLIC_URL`: `mongodb://mongo:JfZyuolAZaYujxmJueFLUeMwzMkJmhpn@turntable.proxy.rlwy.net:23055`
+### Variables de Conexión Completas (Actualizadas)
+- `MONGO_URL`: `mongodb://mongo:qAdOhJanqxBedpXUiObHKWkSFoEOCvug@mongodb-8ago.railway.internal:27017`
+- `MONGO_PUBLIC_URL`: `mongodb://mongo:qAdOhJanqxBedpXUiObHKWkSFoEOCvug@centerbeam.proxy.rlwy.net:32583`
 
 ## Configuración Actual
 
 Tu aplicación está configurada para usar automáticamente la variable `MONGO_URL` que Railway proporciona.
 
-**IMPORTANTE**: Railway automáticamente inyecta la variable `MONGO_URL` cuando conectas un servicio MongoDB. No necesitas configurarla manualmente.
+**IMPORTANTE**: Railway automáticamente inyecta la variable `MONGO_URL` cuando conectas un servicio MongoDB. Las credenciales se actualizan automáticamente.
+
+**URL Final que se usa:**
+```
+mongodb://mongo:qAdOhJanqxBedpXUiObHKWkSFoEOCvug@mongodb-8ago.railway.internal:27017/acsolution
+```
 
 ```javascript
 // En app.module.ts
 MongooseModule.forRoot(
-    process.env.MONGO_URL ||           // Railway proporciona esto automáticamente
+    (process.env.MONGO_URL ? `${process.env.MONGO_URL}/acsolution` : null) ||  // Railway + BD
     process.env.MONGODB_URI ||         // Fallback
     'mongodb://localhost:27017/acsolution'  // Desarrollo local
 )

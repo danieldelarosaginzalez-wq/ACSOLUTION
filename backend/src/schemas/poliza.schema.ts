@@ -56,6 +56,5 @@ export class Poliza {
 
 export const PolizaSchema = SchemaFactory.createForClass(Poliza);
 
-// Índices
-PolizaSchema.index({ poliza_number: 1 }, { unique: true });
+// Índices adicionales (poliza_number ya tiene unique: true en @Prop)
 PolizaSchema.index({ estado: 1 });

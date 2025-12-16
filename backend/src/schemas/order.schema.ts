@@ -192,8 +192,7 @@ export class Order {
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
 
-// Índices
-OrderSchema.index({ codigo: 1 }, { unique: true });
+// Índices adicionales (codigo ya tiene unique: true en @Prop)
 OrderSchema.index({ poliza_number: 1 });
 OrderSchema.index({ tecnico_id: 1 });
 OrderSchema.index({ estado: 1 });

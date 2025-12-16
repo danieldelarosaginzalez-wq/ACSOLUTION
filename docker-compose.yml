@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # MongoDB
+  mongodb:
+    image: mongo:8.0
+    container_name: acsolution-mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: acsolution123
+      MONGO_INITDB_DATABASE: acsolution
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - acsolution-network
+
+  # Backend
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: acsolution-backend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      MONGODB_URI: mongodb://admin:acsolution123@mongodb:27017/acsolution?authSource=admin
+      JWT_SECRET: acsolution_jwt_secret_2024_super_secure
+      JWT_EXPIRES_IN: 7d
+      CORS_ORIGIN: "*"
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mongodb
+    networks:
+      - acsolution-network
+
+  # Frontend + Proxy
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: acsolution-frontend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      BACKEND_PORT: 4000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - acsolution-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  acsolution-network:
+    driver: bridge

@@ -15,7 +15,9 @@
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
         "test:db": "node test-mongodb-connection.js",
         "debug:railway": "node railway-config.js",
-        "verify:railway": "node verify-railway-connection.js"
+        "verify:railway": "node verify-railway-connection.js",
+        "test:new-creds": "node test-new-credentials.js",
+        "fix:railway": "node fix-railway-connection.js"
     },
     "dependencies": {
         "@nestjs/common": "^10.0.0",

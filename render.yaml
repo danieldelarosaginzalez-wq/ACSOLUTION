@@ -1,0 +1,21 @@
+# Configuración para Render - Deploy automático
+services:
+  - type: web
+    name: acsolution
+    env: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: PORT
+        value: 3000
+    # MongoDB Atlas connection string - agregar manualmente en Render dashboard
+    # MONGODB_URI: mongodb+srv://usuario:password@cluster.mongodb.net/acsolution

@@ -34,6 +34,5 @@ export class InventoryTechnician {
 
 export const InventoryTechnicianSchema = SchemaFactory.createForClass(InventoryTechnician);
 
-// Índices
-InventoryTechnicianSchema.index({ tecnico_id: 1 }, { unique: true });
+// Índices adicionales (tecnico_id ya tiene unique: true en @Prop)
 InventoryTechnicianSchema.index({ 'materials.material_id': 1 });
