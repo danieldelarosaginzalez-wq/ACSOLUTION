@@ -11,3 +11,8 @@ restartPolicyMaxRetries = 3
 [env]
 NODE_ENV = "production"
 PORT = "4000"
+JWT_SECRET = "acsolution_jwt_secret_2024_super_secure_change_in_production"
+JWT_EXPIRES_IN = "7d"
+UPLOAD_PATH = "./uploads"
+MAX_FILE_SIZE = "10485760"
+CORS_ORIGIN = "*"

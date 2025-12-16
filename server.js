@@ -101,7 +101,8 @@ function startBackend() {
         ...process.env,
         PORT: BACKEND_PORT,
         NODE_ENV: process.env.NODE_ENV || 'production',
-        MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/acsolution',
+        MONGODB_URI: process.env.MONGO_URL || process.env.MONGODB_URI || 'mongodb://localhost:27017/acsolution',
+        MONGO_URL: process.env.MONGO_URL,
         JWT_SECRET: process.env.JWT_SECRET || 'default-jwt-secret',
         CORS_ORIGIN: `http://localhost:${PORT}`
     };

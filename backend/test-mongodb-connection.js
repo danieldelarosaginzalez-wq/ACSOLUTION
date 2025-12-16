@@ -5,17 +5,22 @@ require('dotenv').config();
 
 async function testMongoConnection() {
     console.log('🔍 Probando conexión a MongoDB...');
-    console.log('📍 URI:', process.env.MONGODB_URI ? 'Configurada ✅' : 'No configurada ❌');
 
-    if (!process.env.MONGODB_URI) {
-        console.error('❌ MONGODB_URI no está configurada en las variables de entorno');
+    const mongoUrl = process.env.MONGO_URL || process.env.MONGODB_URI;
+    console.log('📍 MONGO_URL:', process.env.MONGO_URL ? 'Configurada ✅' : 'No configurada ❌');
+    console.log('📍 MONGODB_URI:', process.env.MONGODB_URI ? 'Configurada ✅' : 'No configurada ❌');
+
+    if (!mongoUrl) {
+        console.error('❌ Ni MONGO_URL ni MONGODB_URI están configuradas');
         process.exit(1);
     }
+
+    console.log('🔗 Usando URL:', mongoUrl.replace(/\/\/[^:]+:[^@]+@/, '//***:***@'));
 
     try {
         console.log('🔌 Conectando a MongoDB...');
 
-        await mongoose.connect(process.env.MONGODB_URI, {
+        await mongoose.connect(mongoUrl, {
             serverSelectionTimeoutMS: 10000, // 10 segundos timeout
             socketTimeoutMS: 45000, // 45 segundos socket timeout
         });

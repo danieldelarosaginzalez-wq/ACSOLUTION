@@ -23,7 +23,11 @@ import { LocationModule } from './location/location.module';
         ConfigModule.forRoot({
             isGlobal: true,
         }),
-        MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/ises_isea'),
+        MongooseModule.forRoot(
+            process.env.MONGO_URL ||
+            process.env.MONGODB_URI ||
+            'mongodb://localhost:27017/acsolution'
+        ),
         AuthModule,
         UsersModule,
         PolizasModule,

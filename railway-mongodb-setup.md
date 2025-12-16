@@ -16,9 +16,17 @@ Según tu configuración en Railway, tienes las siguientes variables disponibles
 
 ## Configuración Actual
 
-Tu aplicación está configurada para usar:
-```
-MONGODB_URI=mongodb://mongo:JfZyuolAZaYujxmJueFLUeMwzMkJmhpn@mongodb.railway.internal:27017/acsolution
+Tu aplicación está configurada para usar automáticamente la variable `MONGO_URL` que Railway proporciona.
+
+**IMPORTANTE**: Railway automáticamente inyecta la variable `MONGO_URL` cuando conectas un servicio MongoDB. No necesitas configurarla manualmente.
+
+```javascript
+// En app.module.ts
+MongooseModule.forRoot(
+    process.env.MONGO_URL ||           // Railway proporciona esto automáticamente
+    process.env.MONGODB_URI ||         // Fallback
+    'mongodb://localhost:27017/acsolution'  // Desarrollo local
+)
 ```
 
 ## Verificación de Conexión
@@ -78,6 +86,9 @@ npm run start:dev
 ## Comandos Útiles
 
 ```bash
+# Debug configuración Railway
+cd backend && npm run debug:railway
+
 # Probar conexión MongoDB
 cd backend && npm run test:db
 
@@ -90,3 +101,25 @@ cd backend && npm run start:dev
 # Iniciar en producción
 npm start
 ```
+
+## Solución al Error de Autenticación
+
+Si ves el error "Authentication failed", sigue estos pasos:
+
+1. **Verificar variables en Railway**:
+   ```bash
+   cd backend && npm run debug:railway
+   ```
+
+2. **Asegurar que MongoDB esté conectado**:
+   - Ve a tu proyecto en Railway
+   - Verifica que el servicio MongoDB esté ejecutándose
+   - Asegúrate de que esté conectado a tu servicio principal
+
+3. **Verificar que MONGO_URL esté disponible**:
+   - Railway debe inyectar automáticamente `MONGO_URL`
+   - Si no está disponible, reconecta el servicio MongoDB
+
+4. **Logs de Railway**:
+   - Revisa los logs del servicio para ver qué URL se está usando
+   - Busca mensajes de conexión MongoDB
